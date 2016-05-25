@@ -1,0 +1,6 @@
+uint8 action
+uint8 START_STREAM = 1
+uint8 STOP_STREAM = 2
+
+---
+bool result

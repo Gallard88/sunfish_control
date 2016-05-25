@@ -1,0 +1,6 @@
+uint8 action
+uint8 START_RECORD = 1
+uint8 STOP_RECORD = 2
+
+---
+bool result
