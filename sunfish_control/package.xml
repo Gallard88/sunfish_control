@@ -1,0 +1,16 @@
+<package>
+  <name>sunfish_control</name>
+  <version>0.0.1</version>
+  <description>A series of programs to control the sunfish ROSV</description>
+
+  <maintainer email="Thomasburns88@gmail.com">Thomas Burns</maintainer>
+  <license>MIT</license>
+
+  <author>Thomas Burns</author>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <export>
+    <metapackage/>
+  </export>
+</package>

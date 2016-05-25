@@ -1,0 +1,7 @@
+<launch>
+  <node name="joy" pkg="joy" type="joy_node" >
+    <param name="dev" value="/dev/input/js1" />
+  </node>
+  <node name="joypad" pkg="sunfish_joypad" type="joypad" />
+</launch>
+
