@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
-from camera.srv import *
-from camera.msg import *
+from sunfish_camera.srv import *
+from sunfish_camera.msg import *
 import rospy
 
 class CameraServer(object):
@@ -12,14 +12,14 @@ class CameraServer(object):
     self.stat.recording_time = 0
     self.stat.port = 0
     self.stat.url = 'localhost'
-    
+
     self.timer_ = rospy.Timer(rospy.Duration(1.0), self.timer_callback)
     self.srv_stream = rospy.Service('/sunfish/camera/stream', Stream, self.service_Stream)
     self.srv_record = rospy.Service('/sunfish/camera/record', Record, self.service_Record)
     self.pub = rospy.Publisher('/sunfish/camera/status', Status, queue_size=1)
-    self.sendStatus()  
+    self.sendStatus()
     return
-    
+
   def service_Stream(self, req):
     resp = False
     if req.action == req.START_STREAM:
@@ -29,7 +29,7 @@ class CameraServer(object):
       rospy.loginfo("Instructed to stopt streaming")
       resp = True
     return StreamResponse(resp)
-    
+
   def service_Record(self, req):
     resp = False
     if req.action == req.START_RECORD:
@@ -44,15 +44,15 @@ class CameraServer(object):
     # Here we send a status update
     if self.stat.is_recording == True:
       self.stat.recording_time = self.stat.recording_time + 1
-    self.sendStatus()  
+    self.sendStatus()
     return
 
   def sendStatus(self):
-    self.pub.publish(stat)
+    self.pub.publish(self.stat)
     return
 
 if __name__ == "__main__":
     rospy.init_node('camera_server')
-    cam_server = CameraServer()    
+    cam_server = CameraServer()
     rospy.loginfo("Camera Server online")
     rospy.spin()
