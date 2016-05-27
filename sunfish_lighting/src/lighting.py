@@ -11,19 +11,23 @@ class LightingServer(object):
 
     param_name = '/sunfish/lighting/channels'
     if rospy.has_param(param_name):
-      rospy.loginfo("Loading Light Channel settings")
+      rospy.logdebug("Loading Light Channel settings")
       items = rospy.get_param(param_name)
       for key in items:
         self.channels[key] = {}
         self.channels[key]['CH']   = items[key]
         self.channels[key]['Duty'] = 0
-        rospy.loginfo("Loaded '%s' (%02d)" % (key, items[key]))
+        rospy.logdebug("Loaded '%s' (%02d)" % (key, items[key]))
 
-    rospy.wait_for_service('/sunfish/ecu/PWM')
     try:
+      rospy.wait_for_service('/sunfish/ecu/PWM', timeout=1)
       self.setPwm_service = rospy.ServiceProxy('/sunfish/ecu/PWM', setPWM)
     except rospy.ServiceException, e:
-      rospy.loginfo("Service call failed: %s"% e )
+      rospy.logfatal("Service call failed: %s"% e )
+      exit(-1)
+    except rospy.ROSException, re:
+      rospy.logfatal("Service call timed out %s" % re )
+      exit(-1)
 
     self.srv_OnOff = rospy.Service('/sunfish/lighting/on_off', OnOff, self.service_OnOff)
     self.pub = rospy.Publisher('/sunfish/lighting/status', Status, queue_size=10)
