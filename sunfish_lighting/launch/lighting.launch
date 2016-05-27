@@ -1,0 +1,7 @@
+<launch>
+  <node name="" pkg="sunfish_lighting" type="lighting.py" >
+
+    <param name="/sunfish/lighting/channels/CH1" value="8" />
+    <param name="/sunfish/lighting/channels/CH2" value="9" />
+  </node>
+</launch>

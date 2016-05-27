@@ -5,21 +5,20 @@ from sunfish_lighting.msg import *
 from sunfish_ecu.srv import *
 import rospy
 
-class LightChannel(object):
-  def __init__(self, c):
-    self.channel = c
-    self.duty = 0
-    return
-
-LightChannels = {}
-light = LightChannel(10)
-LightChannels["CH1"] = light
-light = LightChannel(11)
-LightChannels["CH2"] = light
-
-
 class LightingServer(object):
   def __init__(self):
+    self.channels = {}
+
+    param_name = '/sunfish/lighting/channels'
+    if rospy.has_param(param_name):
+      rospy.loginfo("Loading Light Channel settings")
+      items = rospy.get_param(param_name)
+      for key in items:
+        self.channels[key] = {}
+        self.channels[key]['CH']   = items[key]
+        self.channels[key]['Duty'] = 0
+        rospy.loginfo("Loaded '%s' (%02d)" % (key, items[key]))
+
     rospy.wait_for_service('/sunfish/ecu/PWM')
     try:
       self.setPwm_service = rospy.ServiceProxy('/sunfish/ecu/PWM', setPWM)
@@ -28,6 +27,14 @@ class LightingServer(object):
 
     self.srv_OnOff = rospy.Service('/sunfish/lighting/on_off', OnOff, self.service_OnOff)
     self.pub = rospy.Publisher('/sunfish/lighting/status', Status, queue_size=10)
+
+    for key in self.channels:
+      oo = OnOff()
+      oo.Name = key
+      oo.Duty = 0
+      self.service_OnOff(oo)
+
+
     self.sendStatus()
     return
 
@@ -39,10 +46,10 @@ class LightingServer(object):
     return v
 
   def service_OnOff(self, req):
-    if req.Name in LightChannels:
-      LightChannels[req.Name].duty = self.rangeCheck(req.Duty)
-      duty    = LightChannels[req.Name].duty
-      channel = LightChannels[req.Name].channel
+    if req.Name in self.channels:
+      self.channels[req.Name]['Duty'] = self.rangeCheck(req.Duty)
+      duty    = self.channels[req.Name]['Duty']
+      channel = self.channels[req.Name]['CH']
       self.setPwm_service(duty, channel)
       self.sendStatus()
     return OnOffResponse()
@@ -51,9 +58,9 @@ class LightingServer(object):
     stat = Status()
     stat.Name = []
     stat.Duty = []
-    for key in LightChannels.keys():
+    for key in self.channels:
       stat.Name.append(key)
-      stat.Duty.append(LightChannels[key].duty)
+      stat.Duty.append(self.channels[key]['Duty'])
     self.pub.publish(stat)
     return
 
@@ -61,14 +68,10 @@ class LightingServer(object):
     return
 
 if __name__ == "__main__":
-    rospy.init_node('loghting_server')
-    light_server = LightingServer()
-    for key in LightChannels.keys():
-      oo = OnOff()
-      oo.Name = key
-      oo.Duty = 0
-      light_server.service_OnOff(oo)
-
+    rospy.init_node('lighting_server')
     rospy.loginfo("Lighting manager online")
+
+    light_server = LightingServer()
+    rospy.loginfo("Server ready")
     rospy.spin()
 
