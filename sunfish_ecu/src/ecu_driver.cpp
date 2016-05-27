@@ -9,6 +9,7 @@
 #include "sunfish_ecu/setPWM.h"
 
 #include "VectorMap.h"
+#include "SensorHandler.h"
 
 static ros::Publisher  intTemp_Pub_;
 static ros::Publisher  extTemp_Pub_;
@@ -22,6 +23,7 @@ static ros::ServiceServer  PWM_Srv_;
 static ros::Timer  heartbeatTimer_;
 
 static VectorMap vecMap_;
+static SensorHandler sensorHandler_;
 
 /* ================================================================== */
 /*
@@ -132,6 +134,43 @@ bool serviceHandler_PWM_Single(sunfish_ecu::setPWM::Request  &req,
 static void TimerCallback(const ros::TimerEvent & e)
 {// here every 5 ms, maybe
 
+  // Runs USB Coms
+  // Process and received packets
+
+  ComsPacket p;
+
+  // Check if we need to publish any new messages.
+  sensorHandler_.receiveMsg(p);
+
+  if ( sensorHandler_.newIntTemp() ) {
+    intTemp_Pub_.publish(sensorHandler_.getIntTemp());
+    ROS_INFO("pub - IntTemp");
+  }
+  if ( sensorHandler_.newExtTemp() ) {
+    extTemp_Pub_.publish(sensorHandler_.getExtTemp());
+    ROS_INFO("pub - ExtTemp");
+  }
+  if ( sensorHandler_.newPower() ) {
+    power_Pub_.publish(sensorHandler_.getPower());
+    ROS_INFO("pub - Power");
+  }
+  if ( sensorHandler_.newStatus() ) {
+    status_Pub_.publish(sensorHandler_.getStatus());
+    ROS_INFO("pub - Status");
+  }
+  if ( sensorHandler_.newINS() ) {
+    INS_Pub_.publish(sensorHandler_.getINS());
+    ROS_INFO("pub - INS");
+  }
+  if ( sensorHandler_.newDepth() ) {
+    depth_Pub_.publish(sensorHandler_.getDepth());
+    ROS_INFO("pub - Depth");
+  }
+  if ( sensorHandler_.newMagField() ) {
+    MST_Pub_.publish(sensorHandler_.getMagField());
+    ROS_INFO("pub - Mag");
+  }
+
 }
 
 /* ================================================================== */
@@ -168,3 +207,4 @@ int main(int argc, char **argv)
   ros::spin();
   return 0;
 }
+
