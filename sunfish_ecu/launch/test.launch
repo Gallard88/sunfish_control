@@ -1,6 +1,6 @@
 <launch>
   <node name="" pkg="sunfish_ecu" type="ecu" >
-
+    <rosparam file="$(find sunfish_ecu)/config/output_map.yaml" command="load" ns="sunfish" />
     <param name="/sunfish/ecu/mode" value="debug" />
   </node>
 </launch>

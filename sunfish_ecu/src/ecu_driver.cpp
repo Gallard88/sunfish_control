@@ -1,3 +1,7 @@
+
+#include <string>
+#include <vector>
+
 #include "ros/ros.h"
 
 #include "sunfish_ecu/Depth.h"
@@ -7,6 +11,7 @@
 #include "sunfish_ecu/Status.h"
 #include "sensor_msgs/Temperature.h"  // Twist
 #include "sunfish_ecu/setPWM.h"
+
 
 #include "VectorMap.h"
 #include "SensorHandler.h"
@@ -192,6 +197,23 @@ bool isDebug()
   }
 }
 
+static void loadOutputMapping(int ch, const char *name)
+{
+  ros::NodeHandle n;
+  std::vector<double> val;
+  float array[6];
+
+  if ( !n.hasParam(name)) {
+    return;
+  }
+
+  n.getParam(name, val);
+  for(unsigned i=0; i < val.size(); i++) {
+    array[i] = val[i];
+  }
+  vecMap_.configureOutputChannel(ch, array);
+}
+
 /* ================================================================== */
 int main(int argc, char **argv)
 {
@@ -208,6 +230,11 @@ int main(int argc, char **argv)
     vecMap_.lockMotors(false);
   }
 
+  for ( int i = 0; i < NUM_PWM_CHANNELS; i ++ ) {
+    char name[124];
+    sprintf(name, "/sunfish/ecu/output%d", i);
+    loadOutputMapping(i, name);
+  }
 
   // ------------------------------------------------
   intTemp_Pub_ = n.advertise<sensor_msgs::Temperature>("/sunfish/ecu/int_temp", 5);

@@ -1,0 +1,16 @@
+# Directional movement thrusters
+#             Fwd,   Str, Dive,  Yaw, Pitch,  Roll
+ecu/output0: [ 1.0,  1.0,  0.0,  1.0,   0.0,  0.0] # Front Left
+ecu/output1: [ 1.0, -1.0,  0.0, -1.0,   0.0,  0.0] # Front Right
+ecu/output2: [-1.0,  1.0,  0.0, -1.0,   0.0,  0.0] # Rear  Left
+ecu/output3: [-1.0, -1.0,  0.0,  1.0,   0.0,  0.0] # Rear  Right
+
+# Dive Thrusters
+#             Fwd,   Str, Dive,  Yaw, Pitch,  Roll
+ecu/output4: [ 0.0,  0.0,  1.0,  0.0,   0.0,  0.0] # Front Left
+ecu/output5: [ 0.0,  0.0,  1.0,  0.0,   0.0,  0.0] # Front Right
+ecu/output6: [ 0.0,  0.0,  1.0,  0.0,   0.0,  0.0] # Rear  Left
+ecu/output7: [ 0.0,  0.0,  1.0,  0.0,   0.0,  0.0] # Rear  Right
+
+# Outputs 8 & 9 are reserved for lighting
+# Outputs 10 & 11 are not used.

@@ -48,7 +48,7 @@ void VectorMap::update(const geometry_msgs::Twist & update)
     // At the moment roll & pitch control are not supported.
     vect[OutputChannel::vecRoll]   = 0.0;
     vect[OutputChannel::vecPitch]  = 0.0;
-    ROS_INFO("Update - %f, %f, %f, %f", vect[0], vect[1], vect[2], vect[3]);
+//    ROS_INFO("Update - %f, %f, %f, %f", vect[0], vect[1], vect[2], vect[3]);
   }
 
   for ( int i = 0; i < NUM_PWM_CHANNELS; i ++ ) {
@@ -99,6 +99,23 @@ void VectorMap::lockMotors(bool l)
   motorsLocked_ = l;
 }
 
+void VectorMap::configureOutputChannel(int channel, const float *map)
+{
+  ROS_ASSERT(map != NULL);
+  if ( channel >= 0 && channel < NUM_PWM_CHANNELS ) {
+    for ( int i = 0; i < 6; i ++ ) {
+      channels_[channel].setMap(i, map[i]);
+    }
+  }
+}
+
+OutputChannel *VectorMap::getOutput(int channel)
+{
+  if ( channel >= 0 && channel < NUM_PWM_CHANNELS ) {
+    return &channels_[channel];
+  }
+  return NULL;
+}
 
 
 

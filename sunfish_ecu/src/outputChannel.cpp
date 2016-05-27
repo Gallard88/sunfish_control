@@ -49,11 +49,11 @@ float OutputChannel::run(const float * power)
   }
   ROS_ASSERT(power != NULL);
   oldDuty_ = newDuty_;
-  
+
   newDuty_ = 0.0;
   for ( int i = 0; i < vecSize; i ++ ) {
-    newDuty_ += map_[i] * power[i];
-  }  
+      newDuty_ += map_[i] * power[i];
+  }
   return newDuty_;
 }
 

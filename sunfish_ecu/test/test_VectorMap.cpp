@@ -2,6 +2,8 @@
 
 #include "../src/VectorMap.h"
 
+const float testMap[6] = {1., 1., 1.,1., 1., 1. };
+
 TEST(t_VectorMap, contructor_default_channel)
 {
   VectorMap vm;
@@ -132,8 +134,97 @@ TEST(t_VectorMap, update_all_0)
   t.angular.y = 0.0;
   t.angular.z = 0.0;
 
+  vm.configureOutputChannel(0, testMap);
   vm.update(t);
   ASSERT_EQ(0, vm.getChannelDuty_Int(0));
+}
+
+TEST(t_VectorMap, update_all_1)
+{
+  VectorMap vm;
+
+  geometry_msgs::Twist t;
+
+  t.linear.x = 1.0;
+  t.linear.y = 1.0;
+  t.linear.z = 1.0;
+  t.angular.x = 1.0;
+  t.angular.y = 1.0;
+  t.angular.z = 1.0;
+
+  vm.configureOutputChannel(0, testMap);
+  vm.update(t);
+  ASSERT_EQ(400, vm.getChannelDuty_Int(0));
+}
+
+TEST(t_VectorMap, update_all_0_5)
+{
+  VectorMap vm;
+
+  geometry_msgs::Twist t;
+
+  t.linear.x = 0.5;
+  t.linear.y = 0.5;
+  t.linear.z = 0.5;
+  t.angular.x = 0.5;
+  t.angular.y = 0.5;
+  t.angular.z = 0.5;
+
+  vm.configureOutputChannel(0, testMap);
+  vm.update(t);
+  ASSERT_EQ(200, vm.getChannelDuty_Int(0));
+}
+
+TEST(t_VectorMap, update_one_1)
+{
+  VectorMap vm;
+
+  geometry_msgs::Twist t;
+
+  t.linear.x = 1.0;
+  t.linear.y = 0.0;
+  t.linear.z = 0.0;
+  t.angular.x = 0.0;
+  t.angular.y = 0.0;
+  t.angular.z = 0.0;
+
+  vm.configureOutputChannel(0, testMap);
+  vm.update(t);
+  ASSERT_EQ(100, vm.getChannelDuty_Int(0));
+}
+
+TEST(t_VectorMap, update_one_05)
+{
+  VectorMap vm;
+
+  geometry_msgs::Twist t;
+
+  t.linear.x = 0.5;
+  t.linear.y = 0.0;
+  t.linear.z = 0.0;
+  t.angular.x = 0.0;
+  t.angular.y = 0.0;
+  t.angular.z = 0.0;
+
+  vm.configureOutputChannel(0, testMap);
+  vm.update(t);
+  ASSERT_EQ(50, vm.getChannelDuty_Int(0));
+}
+
+/* ------------------------------------------------------------ */
+TEST(t_VectorMap, configureOutputs)
+{
+  VectorMap vm;
+
+  vm.configureOutputChannel(0, testMap);
+
+  OutputChannel *o = vm.getOutput(0);
+  ASSERT_EQ(1.0, o->getMap(0));
+  ASSERT_EQ(1.0, o->getMap(1));
+  ASSERT_EQ(1.0, o->getMap(2));
+  ASSERT_EQ(1.0, o->getMap(3));
+  ASSERT_EQ(1.0, o->getMap(4));
+  ASSERT_EQ(1.0, o->getMap(5));
 }
 
 /* ------------------------------------------------------------ */
@@ -150,6 +241,7 @@ TEST(t_VectorMap, motorlock_active)
   t.angular.y = 1.0;
   t.angular.z = 1.0;
 
+  vm.configureOutputChannel(0, testMap);
   vm.lockMotors(true);
   vm.update(t);
   ASSERT_EQ(0, vm.getChannelDuty_Int(0));

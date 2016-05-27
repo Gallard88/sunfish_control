@@ -23,6 +23,9 @@ public:
   void setOutputDuty(int channel, float duty);
   void lockMotors(bool l);
 
+  void configureOutputChannel(int channel, const float *map);
+  OutputChannel *getOutput(int channel);
+
 private:
   bool outputsRunning_;
   bool motorsLocked_;
