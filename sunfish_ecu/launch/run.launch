@@ -1,0 +1,6 @@
+<launch>
+  <node name="" pkg="sunfish_ecu" type="ecu" >
+
+    <param name="/sunfish/ecu/mode" value="active" />
+  </node>
+</launch>

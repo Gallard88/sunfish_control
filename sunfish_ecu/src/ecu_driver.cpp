@@ -174,11 +174,40 @@ static void TimerCallback(const ros::TimerEvent & e)
 }
 
 /* ================================================================== */
+bool isDebug()
+{
+  std::string val;
+  ros::param::param<std::string>("/sunfish/ecu/mode", val, "debug-");
+  if ( val == "debug") {
+    ROS_INFO("Starting in debug mode");
+    return true;
+
+  } else if ( val == "active" ) {
+    ROS_INFO("Starting in active mode");
+    return false;
+
+  } else {
+    ROS_INFO("Mode = unknown, defaulting to debug");
+    return true;
+  }
+}
+
+/* ================================================================== */
 int main(int argc, char **argv)
 {
   ros::init(argc, argv, "ecu_driver");
   ros::NodeHandle n;
 
+  ROS_INFO("Sunfish ECU Online");
+
+  if ( isDebug() == true ) {
+    ROS_INFO("All outputs are IN-ACTIVE");
+  } else {
+    ROS_INFO("All outputs are ACTIVE");
+  }
+
+
+  // ------------------------------------------------
   intTemp_Pub_ = n.advertise<sensor_msgs::Temperature>("/sunfish/ecu/int_temp", 5);
   extTemp_Pub_ = n.advertise<sensor_msgs::Temperature>("/sunfish/ecu/ext_temp", 5);
   power_Pub_   = n.advertise<sunfish_ecu::Power>("/sunfish/ecu/power", 5);
@@ -189,7 +218,7 @@ int main(int argc, char **argv)
 
   // ------------------------------------------------
   // Set up file descriptor that allows us to talk to the hardware.
-  heartbeatTimer_ = n.createTimer(ros::Duration(0.005), &TimerCallback);
+//  heartbeatTimer_ = n.createTimer(ros::Duration(0.005), &TimerCallback);
 
   // ------------------------------------------------
   // Set up service to manually control PWM outputs.
@@ -203,7 +232,7 @@ int main(int argc, char **argv)
   // ------------------------------------------------
   // Now we let ros::spin() do all the hard work!
 
-  ROS_INFO("Sunfish ECU Online");
+  ROS_INFO("ECU driver active");
   ros::spin();
   return 0;
 }
