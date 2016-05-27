@@ -202,8 +202,10 @@ int main(int argc, char **argv)
 
   if ( isDebug() == true ) {
     ROS_INFO("All outputs are IN-ACTIVE");
+    vecMap_.lockMotors(true);
   } else {
     ROS_INFO("All outputs are ACTIVE");
+    vecMap_.lockMotors(false);
   }
 
 
@@ -218,7 +220,7 @@ int main(int argc, char **argv)
 
   // ------------------------------------------------
   // Set up file descriptor that allows us to talk to the hardware.
-//  heartbeatTimer_ = n.createTimer(ros::Duration(0.005), &TimerCallback);
+  heartbeatTimer_ = n.createTimer(ros::Duration(0.005), &TimerCallback);
 
   // ------------------------------------------------
   // Set up service to manually control PWM outputs.

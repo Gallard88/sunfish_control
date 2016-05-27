@@ -135,3 +135,22 @@ TEST(t_VectorMap, update_all_0)
   vm.update(t);
   ASSERT_EQ(0, vm.getChannelDuty_Int(0));
 }
+
+/* ------------------------------------------------------------ */
+TEST(t_VectorMap, motorlock_active)
+{
+  VectorMap vm;
+
+  geometry_msgs::Twist t;
+
+  t.linear.x = 1.0;
+  t.linear.y = 1.0;
+  t.linear.z = 1.0;
+  t.angular.x = 1.0;
+  t.angular.y = 1.0;
+  t.angular.z = 1.0;
+
+  vm.lockMotors(true);
+  vm.update(t);
+  ASSERT_EQ(0, vm.getChannelDuty_Int(0));
+}

@@ -21,9 +21,11 @@ public:
   int   getChannelDuty_Int  (int channel);
 
   void setOutputDuty(int channel, float duty);
+  void lockMotors(bool l);
 
 private:
   bool outputsRunning_;
+  bool motorsLocked_;
   OutputChannel channels_[NUM_PWM_CHANNELS];
   ros::Time lastUpdate_;
   ros::Time watchdog_;

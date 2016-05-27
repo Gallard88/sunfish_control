@@ -2,7 +2,8 @@
 #include "VectorMap.h"
 
 VectorMap::VectorMap():
-  outputsRunning_(false)
+  outputsRunning_(false),
+  motorsLocked_(false)
 {
   //------------------------------
   channels_[0].setChannel(0);
@@ -30,16 +31,25 @@ void VectorMap::update(const geometry_msgs::Twist & update)
   outputsRunning_ = false;
   float vect[OutputChannel::vecSize];
 
-  vect[OutputChannel::vecFwd]    = rangeCheck(update.linear.x);
-  vect[OutputChannel::vecStrafe] = rangeCheck(update.linear.y);
-  vect[OutputChannel::vecDive]   = rangeCheck(update.linear.z);
-  vect[OutputChannel::vecYaw]    = rangeCheck(update.angular.z);
+  if ( motorsLocked_ == true ) {
+    vect[OutputChannel::vecFwd]    = 0;
+    vect[OutputChannel::vecStrafe] = 0;
+    vect[OutputChannel::vecDive]   = 0;
+    vect[OutputChannel::vecYaw]    = 0;
+    vect[OutputChannel::vecRoll]   = 0.0;
+    vect[OutputChannel::vecPitch]  = 0.0;
 
-  ROS_INFO("Update - %f, %f, %f, %f", vect[0], vect[1], vect[2], vect[3]);
+  } else {
+    vect[OutputChannel::vecFwd]    = rangeCheck(update.linear.x);
+    vect[OutputChannel::vecStrafe] = rangeCheck(update.linear.y);
+    vect[OutputChannel::vecDive]   = rangeCheck(update.linear.z);
+    vect[OutputChannel::vecYaw]    = rangeCheck(update.angular.z);
 
-  // At the moment roll & pitch control are not supported.
-  vect[OutputChannel::vecRoll]   = 0.0;
-  vect[OutputChannel::vecPitch]  = 0.0;
+    // At the moment roll & pitch control are not supported.
+    vect[OutputChannel::vecRoll]   = 0.0;
+    vect[OutputChannel::vecPitch]  = 0.0;
+    ROS_INFO("Update - %f, %f, %f, %f", vect[0], vect[1], vect[2], vect[3]);
+  }
 
   for ( int i = 0; i < NUM_PWM_CHANNELS; i ++ ) {
 
@@ -82,6 +92,11 @@ void VectorMap::setOutputDuty(int channel, float duty)
   if ( channel >= 0 && channel < NUM_PWM_CHANNELS ) {
     channels_[channel].setDuty(rangeCheck(duty));
   }
+}
+
+void VectorMap::lockMotors(bool l)
+{
+  motorsLocked_ = l;
 }
 
 
