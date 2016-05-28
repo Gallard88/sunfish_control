@@ -32,6 +32,7 @@ target_link_libraries(${PROJECT_NAME}_test ${catkin_LIBRARIES})
 # Dive Controller.
 add_executable(ecu
     src/ComsPacket.cpp
+    src/HardwareComs.cpp
     src/VectorMap.cpp
     src/outputChannel.cpp
     src/SensorHandler.cpp

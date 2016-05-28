@@ -7,24 +7,24 @@ class ComsPacket
 {
 public:
   ComsPacket();
-  
+
   static int DATA_SIZE;
   static int PAYLOAD_SIZE;
 
-  uint16_t getModuleId();
-  uint16_t getPacketId();
-  uint32_t getSeqNumber();
+  uint16_t getModuleId()  const;
+  uint16_t getPacketId()  const;
+  uint32_t getSeqNumber() const;
 
   void setModuleId(uint16_t id);
   void setPacketId(uint16_t id);
   void setSeqNumber(uint32_t seq);
- 
-  const uint8_t * getPayload();
-  const uint8_t * getData();
-  
+
+  const uint8_t * getPayload() const;
+  const uint8_t * getData()    const;
+
   void setPayload(const uint8_t * payload);
   void setData(const uint8_t * data);
-  
+
 private:
   uint8_t buffer[512];
   static int HEADER_SIZE;

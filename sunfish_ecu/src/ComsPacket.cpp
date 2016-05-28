@@ -4,6 +4,7 @@
 
 ComsPacket::ComsPacket()
 {
+  memset(buffer, 0, sizeof(buffer));
 }
 
 int ComsPacket::HEADER_SIZE = 8;
@@ -18,7 +19,7 @@ void ComsPacket::setModuleId(uint16_t id)
   buffer[1] = id;
 }
 
-uint16_t ComsPacket::getModuleId()
+uint16_t ComsPacket::getModuleId() const
 {
   uint16_t id;
 
@@ -32,7 +33,7 @@ void ComsPacket::setPacketId(uint16_t id)
   buffer[3] = id;
 }
 
-uint16_t ComsPacket::getPacketId()
+uint16_t ComsPacket::getPacketId() const
 {
   uint16_t id;
 
@@ -48,7 +49,7 @@ void ComsPacket::setSeqNumber(uint32_t seq)
   buffer[7] = seq ;
 }
 
-uint32_t ComsPacket::getSeqNumber()
+uint32_t ComsPacket::getSeqNumber() const
 {
   uint32_t id = 0;
 
@@ -65,12 +66,12 @@ void ComsPacket::setPayload(const uint8_t * payload)
   memcpy(buffer, payload, PAYLOAD_SIZE);
 }
 
-const uint8_t * ComsPacket::getPayload()
+const uint8_t * ComsPacket::getPayload() const
 {
   return buffer;
 }
 
-const uint8_t * ComsPacket::getData()
+const uint8_t * ComsPacket::getData() const
 {
   return buffer + ComsPacket::PAYLOAD_OFFSET;
 }

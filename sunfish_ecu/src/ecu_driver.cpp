@@ -15,6 +15,7 @@
 
 #include "VectorMap.h"
 #include "SensorHandler.h"
+#include "HardwareComs.h"
 
 static ros::Publisher  intTemp_Pub_;
 static ros::Publisher  extTemp_Pub_;
@@ -29,6 +30,7 @@ static ros::Timer  heartbeatTimer_;
 
 static VectorMap vecMap_;
 static SensorHandler sensorHandler_;
+static HardwareComs hwdComs_;
 
 /* ================================================================== */
 /*
@@ -141,8 +143,13 @@ static void TimerCallback(const ros::TimerEvent & e)
 
   // Runs USB Coms
   // Process and received packets
-
   ComsPacket p;
+
+  bool packetReceived = hwdComs_.run(20, NULL, &p);
+
+  if (packetReceived == false ) {
+    return;
+  }
 
   // Check if we need to publish any new messages.
   sensorHandler_.receiveMsg(p);
@@ -235,6 +242,9 @@ int main(int argc, char **argv)
     sprintf(name, "/sunfish/ecu/output%d", i);
     loadOutputMapping(i, name);
   }
+
+  hwdComs_.setDevName("/dev/hid0");
+  hwdComs_.connect();
 
   // ------------------------------------------------
   intTemp_Pub_ = n.advertise<sensor_msgs::Temperature>("/sunfish/ecu/int_temp", 5);
