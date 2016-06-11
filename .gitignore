@@ -51,3 +51,4 @@ CATKIN_IGNORE
 build_isolated/
 devel_isolated/
 
+build-*-Default/
