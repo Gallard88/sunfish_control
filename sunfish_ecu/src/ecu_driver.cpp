@@ -28,99 +28,14 @@ static ros::Publisher  MST_Pub_;
 static ros::ServiceServer  PWM_Srv_;
 static ros::Timer  heartbeatTimer_;
 
+static ros::Subscriber joySub_;
+static ros::Timer      updateTimer;
+
 static VectorMap vecMap_;
 static SensorHandler sensorHandler_;
 static HardwareComs hwdComs_;
 
 /* ================================================================== */
-/*
-
-Hardware Data Model
-uint8_t PWM_Channels[12];
-
-// Temperature
-float internalTemp_;
-float externalTemp_;
-
-// Depth
-float Depth_Pressure;
-float Depth_Temperature;
-
-// Power
-float Voltage_Avg
-float Voltage_Current
-uint32_t SampleRate
-float32 voltage_[100];
-float32 current_[100];
-
-// INS Data
-float32 AbsOrientation_Euler[3] # (Euler Vector, 100Hz)
-                               # Three axis orientation data based on a 360° sphere
-geometry_msgs::Quaternion AbsoluteOrientation_Quart[3] # (Quaterion, 100Hz)
-                               # Four point quaternion output for more accurate data manipulation
-float32 AngularVel[3]     # (100Hz)
-                               # Three axis of 'rotation speed' in rad/s
-float32 AccelVector  # (100Hz)
-                               # Three axis of acceleration (gravity + linear motion) in m/s^2
-float32 MagField       # (20Hz)
-                               # Three axis of magnetic field sensing in micro Tesla (uT)
-float32 LinAccVector[3] # (100Hz)
-                               # Three axis of linear acceleration data (acceleration minus gravity) in m/s^2
-float32 GravityVector[3]      # (100Hz)
-                               # Three axis of gravitational acceleration (minus any movement) in m/s^2
-float32 Temperature         # (1Hz)
-                               # Ambient temperature in degrees celsius
-
-
-
-
-So how do we plan this.
-
-One thought is a HID driver moving large (512 byte) chunks as needed.
-Nearly all of the data above could be packed into one massive struct.
-Add a bit mask to indicate whats changed...
-Most data updates at 100 Hz. The flag field is useful for other fields that update less quickly.
-
-
-*/
-typedef struct {
-  int16_t x;
-  int16_t y;
-  int16_t z;
-  int16_t w;
-} Quart_Int;
-
-typedef struct {
-    uint16_t PacketHeader;
-    char Firmware[16];
-    uint16_t HwdType;
-    uint16_t Flags;
-    uint16_t depth_pressure;
-    int16_t  depth_temperature;
-
-    // INS
-    int16_t   AbsOrientation_Euler[3];
-    Quart_Int AbsoluteOrientation_Quart[3];
-    int16_t   AngularVel[3];
-    int16_t   AccelVector[3];
-    int16_t   MagField[3];
-    int16_t   LinAccVector[3];
-    int16_t   GravityVector[3];
-    int16_t   Temp;
-
-    // power
-    uint32_t SampleRate;
-    uint16_t volt_[100];
-    int16_t current_[100];
-
-
-}  ECU_DataModel;
-
-typedef union {
-  ECU_DataModel s;
-  uint8_t       u[512];
-} UnionPacket;
-
 /* ================================================================== */
 bool serviceHandler_PWM_Single(sunfish_ecu::setPWM::Request  &req,
                                sunfish_ecu::setPWM::Response &res)
@@ -265,8 +180,8 @@ int main(int argc, char **argv)
 
   // ------------------------------------------------
   // Set up Control Vector sub-system.
-  ros::Subscriber joySub_ = n.subscribe("/sunfish/ecu/vector", 2, &VectorMap::update, &vecMap_);
-  ros::Timer      updateTimer = n.createTimer(ros::Duration(1.0), &VectorMap::watchdog, &vecMap_);
+  joySub_ = n.subscribe("/sunfish/ecu/vector", 2, &VectorMap::update, &vecMap_);
+  updateTimer = n.createTimer(ros::Duration(1.0), &VectorMap::watchdog, &vecMap_);
 
   // ------------------------------------------------
   // Now we let ros::spin() do all the hard work!

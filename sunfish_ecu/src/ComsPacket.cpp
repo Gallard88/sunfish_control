@@ -82,3 +82,13 @@ void ComsPacket::setData(const uint8_t * data)
   memcpy(buffer+ComsPacket::PAYLOAD_OFFSET, data, DATA_SIZE);
 }
 
+uint16_t ComsPacket::readValue_16b(const uint8_t *ptr)
+{
+  return (ptr[0] * 256) + ptr[1];
+}
+
+uint32_t ComsPacket::readValue_32b(const uint8_t *ptr)
+{
+  return (readValue_16b(ptr) * 65536) + readValue_16b(ptr+2);
+}
+

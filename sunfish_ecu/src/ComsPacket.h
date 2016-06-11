@@ -25,6 +25,9 @@ public:
   void setPayload(const uint8_t * payload);
   void setData(const uint8_t * data);
 
+  static uint16_t readValue_16b(const uint8_t *ptr);
+  static uint32_t readValue_32b(const uint8_t *ptr);
+
 private:
   uint8_t buffer[512];
   static int HEADER_SIZE;
