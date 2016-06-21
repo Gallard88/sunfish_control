@@ -34,6 +34,7 @@ static ros::Timer      updateTimer;
 static VectorMap vecMap_;
 static SensorHandler sensorHandler_;
 static HardwareComs hwdComs_;
+static bool runPowerMonitor;
 
 /* ================================================================== */
 /* ================================================================== */
@@ -77,7 +78,9 @@ static void TimerCallback(const ros::TimerEvent & e)
     extTemp_Pub_.publish(sensorHandler_.getExtTemp());
     ROS_INFO("pub - ExtTemp");
   }
-  if ( sensorHandler_.newPower() ) {
+  if (( sensorHandler_.newPower() ) &&
+      ( runPowerMonitor == true )) {
+
     power_Pub_.publish(sensorHandler_.getPower());
     ROS_INFO("pub - Power");
   }
@@ -152,6 +155,11 @@ int main(int argc, char **argv)
     vecMap_.lockMotors(false);
   }
 
+  ros::param::param<bool>("/sunfish/ecu/pmon", runPowerMonitor, false);
+  ROS_INFO("Power Monitor is %s", (runPowerMonitor == true)? "Enabled": "Disabled");
+
+
+  ROS_INFO("Loading PWM Map data");
   for ( int i = 0; i < NUM_PWM_CHANNELS; i ++ ) {
     char name[124];
     sprintf(name, "/sunfish/ecu/output%d", i);
@@ -164,7 +172,9 @@ int main(int argc, char **argv)
   // ------------------------------------------------
   intTemp_Pub_ = n.advertise<sensor_msgs::Temperature>("/sunfish/ecu/int_temp", 5);
   extTemp_Pub_ = n.advertise<sensor_msgs::Temperature>("/sunfish/ecu/ext_temp", 5);
-  power_Pub_   = n.advertise<sunfish_ecu::Power>("/sunfish/ecu/power", 5);
+  if ( runPowerMonitor == true ) {
+    power_Pub_   = n.advertise<sunfish_ecu::Power>("/sunfish/ecu/power", 5);
+  }
   status_Pub_  = n.advertise<sunfish_ecu::Status>("/sunfish/ecu/status", 5);
   INS_Pub_     = n.advertise<sunfish_ecu::INS>("/sunfish/ecu/INS", 10);
   depth_Pub_   = n.advertise<sunfish_ecu::Depth>("/sunfish/ecu/depth", 5);
@@ -172,7 +182,7 @@ int main(int argc, char **argv)
 
   // ------------------------------------------------
   // Set up file descriptor that allows us to talk to the hardware.
-  heartbeatTimer_ = n.createTimer(ros::Duration(0.005), &TimerCallback);
+  heartbeatTimer_ = n.createTimer(ros::Duration(0.01), &TimerCallback);
 
   // ------------------------------------------------
   // Set up service to manually control PWM outputs.
