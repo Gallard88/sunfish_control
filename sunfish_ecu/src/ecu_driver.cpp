@@ -85,7 +85,11 @@ static void TimerCallback(const ros::TimerEvent & e)
     ROS_INFO("pub - Power");
   }
   if ( sensorHandler_.newStatus() ) {
-    status_Pub_.publish(sensorHandler_.getStatus());
+    sunfish_ecu::Status s = sensorHandler_.getStatus();
+    for ( int i = 0; i < NUM_PWM_CHANNELS; i ++ ) {
+      s.PwmDuty[i] = vecMap_.getChannelDuty_Int(i);
+    }
+    status_Pub_.publish(s);
     ROS_INFO("pub - Status");
   }
   if ( sensorHandler_.newINS() ) {

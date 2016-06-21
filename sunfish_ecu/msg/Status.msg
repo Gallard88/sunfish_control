@@ -10,3 +10,4 @@ float32 ExternalTemp
 bool Fault_PWM_1
 bool Fault_PWM_2
 bool Fault_PWM_3
+uint8[12] PwmDuty
