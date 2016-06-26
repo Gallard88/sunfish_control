@@ -148,6 +148,8 @@ void SensorHandler::processDepth(const uint8_t *ptr)
   depth_.Stamp = ros::Time::now();
   depth_.Pressure = 0.0;
   depth_.Temperature = 0.0;
+  depth_.Density = 1000;
+  depth_.Depth = -2.0;
   newDepth_ = true;
 
   extTemp_.temperature = depth_.Temperature;
